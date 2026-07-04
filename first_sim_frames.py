@@ -48,7 +48,7 @@ frame_indices = np.linspace(0, total_steps - 1, num_frames, dtype=int)
 fig, axes = plt.subplots(1, num_frames, figsize=(18, 3))
 for ax, idx in zip(axes, frame_indices):
     frame = sensor_data['p'][:, idx].reshape(Nx, Ny)
-    im = ax.imshow(frame, cmap='viridis')
+    im = ax.imshow(np.abs(frame), cmap='hot')
     ax.set_title(f"step {idx}")
     ax.axis('off')
 
