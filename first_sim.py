@@ -30,25 +30,28 @@ print("Total time simulated (seconds):", kgrid.dt * kgrid.Nt)
 # a small disc of high initial pressure in the center of the grid
 # like dropping a pebble in a pond, the wave will propagate outwards from the center
 
-source_p0 = np.zeros((Nx, Ny))
+source_p0 = np.zeros((Nx, Ny)) #creates a blank sheet pressure values, all gridpoints set to 0 Pa (no initial pressure); 
 cx, cy = Nx // 2, Ny // 2  # center of the grid
 radius = 5  # radius of the disc in grid points
 for i in range(Nx):
     for j in range(Ny):
         if (i - cx) ** 2 + (j - cy) ** 2 <= radius ** 2:
-            source_p0[i, j] = 1.0  # initial pressure of 1 Pa; 
+            source_p0[i, j] = 1.0  # initial pressure of 1 Pa; initial disturbance in the medium, which will propagate outwards as a wave
             # for every point that is within the radius of the disc, set the initial pressure to 1 Pa
+            #So at time zero: center of grid = 0 (ambient) + 1 (our pulse) = 1 Pa; everywhere else = 0 (ambient) + 0 (undisturbed) = 0 Pa
 
 #Step 4: Sensor - where the wave is measured
 # record the pressure at every grid point in the domain
 # useful to see how the full wave moves through the medium, but practice you would record at a few end points
 # it gets expensive to record at every point, and you don't need to know the pressure everywhere
-sensor_mask = np.ones((Nx, Ny), dtype = bool)  # record pressure at all grid points 
+sensor_mask = np.ones((Nx, Ny), dtype = bool)  # record pressure at all grid points. ones set every point to True, so the sensor will record at every grid point
 sensor = kSensor(mask=sensor_mask, record='p')  # record pressure at all grid
+#mask parameter is grid of yes/no (boolean = true/false) values, where True means record pressure at that point, and False means don't record pressure at that point
+#'p' means record pressure (quantity), other options include 'u' for particle velocity, 'I' for intensity, etc.
 
 #Step 5: Run the simulation (backend='python' since C++ binary isn't compatible with this Mac)
-source = kSource()
-source.p0 = source_p0
+source = kSource() #empty source object, will be filled with initial pressure distribution defined earlier/below
+source.p0 = source_p0 #source.p0 is not a new variable, it's a property of the source object that is being set to the initial pressure distribution defined earlier. This is how the simulation knows what the initial pressure distribution is, and it will use this information to calculate how the wave propagates through the medium over time.
 sensor_data = kspaceFirstOrder(
     kgrid, medium, source, sensor, 
     pml_inside=False, quiet=True, backend='python')
@@ -63,7 +66,7 @@ print("sensor_mask sum (points marked true):", sensor_mask.sum())
 #Step 6: Visualize the results
 # plot the initial pressure distribution
 final_pressure = sensor_data['p'][:,-1].reshape(Nx, Ny)  # final pressure distribution at the last time step
-plt.imshow(final_pressure, cmap='viridis') #cmap = 'viridis' is a color map that goes from dark blue to yellow, which is good for visualizing data with a wide range of values other color maps include 'plasma', 'inferno', 'magma', 'cividis', 'hot',
+plt.imshow(np.abs(final_pressure), cmap='hot')
 plt.colorbar(label='Pressure [Pa]')
 plt.title('Final Pressure Distribution')
 plt.xlabel('Grid Points (x)')
