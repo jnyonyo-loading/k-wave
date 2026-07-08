@@ -28,7 +28,6 @@ sound_speed = np.full((Nx, Ny), 1500.0)  # water/brain, m/s
 density     = np.full((Nx, Ny), 1000.0)  # water/brain, kg/m^3
 
 # Now overwrite a region with skull values - skull slab
-# e.g. a skull layer occupying the first 20 grid points in x (left-hand side), now heterogeneous.
 # skull slab - ~7mm thick (70 grid points at 100 micron spacing), positioned partway across
 skull_start, skull_end = 90, 160  # x-index range
 sound_speed[skull_start:skull_end, :] = 2800.0  # skull, m/s
