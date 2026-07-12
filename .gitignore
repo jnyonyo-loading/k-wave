@@ -1,1 +1,6 @@
 .venv
+*.nii.gz
+*.nii
+.DS_Store
+.vscode/
+mr-to-pct/.venv-pct/
